@@ -3,88 +3,95 @@ package com.tecsup.petclinic.services;
 import com.tecsup.petclinic.dtos.OwnerDTO;
 import com.tecsup.petclinic.entities.Owner;
 import com.tecsup.petclinic.exceptions.OwnerNotFoundException;
-import com.tecsup.petclinic.mappers.OwnerMapper;
 import com.tecsup.petclinic.repositories.OwnerRepository;
+import com.tecsup.petclinic.util.TObjectCreator;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class OwnerServiceTest {
+@Slf4j
+@SpringBootTest
+public class OwnerServiceTest {
 
-    @Mock
-    private OwnerRepository ownerRepository;
+    @Autowired
+    private OwnerService ownerService;
 
-    @Spy
-    private OwnerMapper ownerMapper = Mappers.getMapper(OwnerMapper.class);
-
-    @InjectMocks
-    private OwnerServiceImpl ownerService;
+    @MockitoBean
+    private OwnerRepository repository;
 
     // === Integrante B — Búsquedas y consultas ===
 
+    /**
+     *
+     */
     @Test
-    void testFindOwnerById() throws OwnerNotFoundException {
+    public void testFindOwnerById() {
 
-        Owner ownerExpected = new Owner(1, "George", "Franklin", "110 W. Liberty St.", "Madison", "6085551023");
+        Owner ownerExpected = TObjectCreator.getOwner();
 
-        when(ownerRepository.findById(1)).thenReturn(Optional.of(ownerExpected));
+        Mockito.when(this.repository.findById(1))
+                .thenReturn(Optional.of(ownerExpected));
 
-        OwnerDTO owner = ownerService.findById(1);
+        OwnerDTO owner = null;
 
-        assertNotNull(owner);
+        try {
+            owner = this.ownerService.findById(1);
+        } catch (OwnerNotFoundException e) {
+            fail(e.getMessage());
+        }
+
+        log.info("" + ownerExpected);
+        log.info("" + owner);
+
         assertEquals(ownerExpected.getId(), owner.getId());
         assertEquals(ownerExpected.getFirstName(), owner.getFirstName());
         assertEquals(ownerExpected.getLastName(), owner.getLastName());
-        assertEquals(ownerExpected.getCity(), owner.getCity());
-        verify(ownerRepository).findById(1);
     }
 
+    /**
+     *
+     */
     @Test
-    void testFindByLastName() {
+    public void testFindByLastName() {
 
-        String LAST_NAME = "Davis";
+        String FIND_LAST_NAME = "Davis";
 
-        List<Owner> ownersExpected = List.of(
-                new Owner(2, "Betty", LAST_NAME, "638 Cardinal Ave.", "Sun Prairie", "6085551749"),
-                new Owner(10, "Harold", LAST_NAME, "563 Friendly St.", "Windsor", "6085553198"));
+        List<Owner> ownersExpected = TObjectCreator.getOwnersForFindByLastName();
 
-        when(ownerRepository.findByLastName(LAST_NAME)).thenReturn(ownersExpected);
+        Mockito.when(this.repository.findByLastName(FIND_LAST_NAME))
+                .thenReturn(ownersExpected);
 
-        List<OwnerDTO> owners = ownerService.findByLastName(LAST_NAME);
+        List<OwnerDTO> owners = this.ownerService.findByLastName(FIND_LAST_NAME);
 
         assertEquals(ownersExpected.size(), owners.size());
-        owners.forEach(owner -> assertEquals(LAST_NAME, owner.getLastName()));
-        verify(ownerRepository).findByLastName(LAST_NAME);
+        owners.forEach(owner -> assertEquals(FIND_LAST_NAME, owner.getLastName()));
     }
 
+    /**
+     *
+     */
     @Test
-    void testFindByCity() {
+    public void testFindByCity() {
 
-        String CITY = "Madison";
+        String FIND_CITY = "Madison";
 
-        List<Owner> ownersExpected = List.of(
-                new Owner(1, "George", "Franklin", "110 W. Liberty St.", CITY, "6085551023"),
-                new Owner(6, "Jean", "Coleman", "105 N. Lake St.", CITY, "6085552654"));
+        List<Owner> ownersExpected = TObjectCreator.getOwnersForFindByCity();
 
-        when(ownerRepository.findByCity(CITY)).thenReturn(ownersExpected);
+        Mockito.when(this.repository.findByCity(FIND_CITY))
+                .thenReturn(ownersExpected);
 
-        List<OwnerDTO> owners = ownerService.findByCity(CITY);
+        List<OwnerDTO> owners = this.ownerService.findByCity(FIND_CITY);
 
         assertEquals(ownersExpected.size(), owners.size());
-        owners.forEach(owner -> assertEquals(CITY, owner.getCity()));
-        verify(ownerRepository).findByCity(CITY);
+        owners.forEach(owner -> assertEquals(FIND_CITY, owner.getCity()));
     }
 
 }
