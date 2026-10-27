@@ -1,92 +1,5 @@
-package com.tecsup.petclinic.services;
+﻿package com.tecsup.petclinic.services;
 
-<<<<<<< HEAD
-import com.tecsup.petclinic.entities.Owner;
-import com.tecsup.petclinic.repositories.OwnerRepository;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-@ExtendWith(MockitoExtension.class)
-class OwnerServiceTest {
-
-    @Mock
-    private OwnerRepository ownerRepository;
-
-    @InjectMocks
-    private OwnerService ownerService;
-
-    // === Integrante A — CRUD Básico ===
-
-    @Test
-    void testCreateOwner() {
-        // Arrange
-        Owner newOwner = new Owner();
-        newOwner.setFirstName("Juan");
-        newOwner.setLastName("Perez");
-        newOwner.setCity("Santiago");
-
-        when(ownerRepository.save(newOwner)).thenReturn(newOwner);
-
-        // Act
-        Owner savedOwner = ownerService.createOwner(newOwner);
-
-        // Assert
-        assertNotNull(savedOwner);
-        assertEquals("Juan", savedOwner.getFirstName());
-        assertEquals("Perez", savedOwner.getLastName());
-        verify(ownerRepository, times(1)).save(newOwner);
-    }
-
-    @Test
-    void testUpdateOwner() {
-        // Arrange
-        Owner existingOwner = new Owner();
-        existingOwner.setId(1L);
-        existingOwner.setFirstName("Carlos");
-        existingOwner.setLastName("Lopez");
-        existingOwner.setCity("Antigua");
-
-        when(ownerRepository.findById(1L)).thenReturn(Optional.of(existingOwner));
-        when(ownerRepository.save(existingOwner)).thenReturn(existingOwner);
-
-        // Act
-        existingOwner.setLastName("Gonzalez");
-        existingOwner.setCity("Concepcion");
-        Owner updatedOwner = ownerService.updateOwner(existingOwner);
-
-        // Assert
-        assertEquals("Gonzalez", updatedOwner.getLastName());
-        assertEquals("Concepcion", updatedOwner.getCity());
-        verify(ownerRepository, times(1)).save(existingOwner);
-    }
-
-    @Test
-    void testDeleteOwner() {
-        // Arrange
-        Owner existingOwner = new Owner();
-        existingOwner.setId(1L);
-        existingOwner.setFirstName("Maria");
-        existingOwner.setLastName("Silva");
-
-        when(ownerRepository.findById(1L)).thenReturn(Optional.of(existingOwner));
-        doNothing().when(ownerRepository).deleteById(1L);
-
-        // Act
-        ownerService.deleteOwner(1L);
-
-        // Assert
-        verify(ownerRepository, times(1)).deleteById(1L);
-        verify(ownerRepository, times(1)).findById(1L);
-    }
-=======
 import com.tecsup.petclinic.dtos.OwnerDTO;
 import com.tecsup.petclinic.entities.Owner;
 import com.tecsup.petclinic.exceptions.OwnerNotFoundException;
@@ -114,72 +27,122 @@ public class OwnerServiceTest {
     @MockitoBean
     private OwnerRepository repository;
 
-    // === Integrante B — Búsquedas y consultas ===
+    // =========================================================================
+    // Integrante A ÔÇö Casos de error
+    // =========================================================================
 
     /**
-     *
+     * Verifica que findById lance OwnerNotFoundException cuando el ID no existe.
+     */
+    @Test
+    public void testFindOwnerById_NotFound() {
+        // Arrange
+        Mockito.when(repository.findById(999))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(OwnerNotFoundException.class, () -> {
+            ownerService.findById(999);
+        });
+    }
+
+    /**
+     * Verifica que delete lance OwnerNotFoundException cuando el ID no existe.
+     */
+    @Test
+    public void testDeleteOwner_NotFound() {
+        // Arrange
+        Mockito.when(repository.existsById(999)).thenReturn(false);
+
+        // Act & Assert
+        assertThrows(OwnerNotFoundException.class, () -> {
+            ownerService.delete(999);
+        });
+    }
+
+    /**
+     * Verifica que findByLastName retorne lista vac├¡a cuando no hay coincidencias.
+     */
+    @Test
+    public void testFindByLastName_Empty() {
+        // Arrange
+        Mockito.when(repository.findByLastName("Inexistente"))
+                .thenReturn(Optional.empty());
+
+        // Act
+        List<OwnerDTO> result = ownerService.findByLastName("Inexistente");
+
+        // Assert
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    // =========================================================================
+    // Integrante B (Johan) ÔÇö B├║squedas y consultas
+    // =========================================================================
+
+    /**
+     * Verifica que findById devuelva el Owner correcto cuando existe.
      */
     @Test
     public void testFindOwnerById() {
-
+        // Arrange
         Owner ownerExpected = TObjectCreator.getOwner();
-
-        Mockito.when(this.repository.findById(1))
+        Mockito.when(repository.findById(1))
                 .thenReturn(Optional.of(ownerExpected));
 
-        OwnerDTO owner = null;
-
+        // Act
+        OwnerDTO owner;
         try {
-            owner = this.ownerService.findById(1);
+            owner = ownerService.findById(1);
         } catch (OwnerNotFoundException e) {
             fail(e.getMessage());
+            return;
         }
 
-        log.info("" + ownerExpected);
-        log.info("" + owner);
-
-        assertEquals(ownerExpected.getId(), owner.getId());
+        // Assert
+        log.info("Expected: " + ownerExpected);
+        log.info("Returned: " + owner);
+        assertEquals(ownerExpected.getId().intValue(), owner.getId());
         assertEquals(ownerExpected.getFirstName(), owner.getFirstName());
         assertEquals(ownerExpected.getLastName(), owner.getLastName());
     }
 
     /**
-     *
+     * Verifica que findByLastName devuelva los Owners con el apellido indicado.
      */
     @Test
     public void testFindByLastName() {
-
+        // Arrange
         String FIND_LAST_NAME = "Davis";
-
         List<Owner> ownersExpected = TObjectCreator.getOwnersForFindByLastName();
-
-        Mockito.when(this.repository.findByLastName(FIND_LAST_NAME))
+        Mockito.when(repository.findByLastName(FIND_LAST_NAME))
                 .thenReturn(ownersExpected);
 
-        List<OwnerDTO> owners = this.ownerService.findByLastName(FIND_LAST_NAME);
+        // Act
+        List<OwnerDTO> owners = ownerService.findByLastName(FIND_LAST_NAME);
 
+        // Assert
         assertEquals(ownersExpected.size(), owners.size());
         owners.forEach(owner -> assertEquals(FIND_LAST_NAME, owner.getLastName()));
     }
 
     /**
-     *
+     * Verifica que findByCity devuelva los Owners de la ciudad indicada.
      */
     @Test
     public void testFindByCity() {
-
+        // Arrange
         String FIND_CITY = "Madison";
-
         List<Owner> ownersExpected = TObjectCreator.getOwnersForFindByCity();
-
-        Mockito.when(this.repository.findByCity(FIND_CITY))
+        Mockito.when(repository.findByCity(FIND_CITY))
                 .thenReturn(ownersExpected);
 
-        List<OwnerDTO> owners = this.ownerService.findByCity(FIND_CITY);
+        // Act
+        List<OwnerDTO> owners = ownerService.findByCity(FIND_CITY);
 
+        // Assert
         assertEquals(ownersExpected.size(), owners.size());
         owners.forEach(owner -> assertEquals(FIND_CITY, owner.getCity()));
     }
-
->>>>>>> 6219b72b25686affd14c4fc2177558bcebe5ee9b
 }
