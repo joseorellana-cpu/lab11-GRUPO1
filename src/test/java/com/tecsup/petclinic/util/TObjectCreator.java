@@ -1,6 +1,10 @@
 package com.tecsup.petclinic.util;
 
 import com.tecsup.petclinic.dtos.PetDTO;
+<<<<<<< HEAD
+=======
+import com.tecsup.petclinic.entities.Owner;
+>>>>>>> 6219b72b25686affd14c4fc2177558bcebe5ee9b
 import com.tecsup.petclinic.entities.Pet;
 
 import java.util.ArrayList;
@@ -80,4 +84,25 @@ public class TObjectCreator {
 		pets.add(new Pet(13,"Sly",1,10, null));
 		return pets;
 	}
+<<<<<<< HEAD
+=======
+
+	public static Owner getOwner() {
+		return new Owner(1, "George", "Franklin", "110 W. Liberty St.", "Madison", "6085551023");
+	}
+
+	public static List<Owner> getOwnersForFindByLastName() {
+		List<Owner> owners = new ArrayList<Owner>();
+		owners.add(new Owner(2, "Betty", "Davis", "638 Cardinal Ave.", "Sun Prairie", "6085551749"));
+		owners.add(new Owner(10, "Harold", "Davis", "563 Friendly St.", "Windsor", "6085553198"));
+		return owners;
+	}
+
+	public static List<Owner> getOwnersForFindByCity() {
+		List<Owner> owners = new ArrayList<Owner>();
+		owners.add(new Owner(1, "George", "Franklin", "110 W. Liberty St.", "Madison", "6085551023"));
+		owners.add(new Owner(6, "Jean", "Coleman", "105 N. Lake St.", "Madison", "6085552654"));
+		return owners;
+	}
+>>>>>>> 6219b72b25686affd14c4fc2177558bcebe5ee9b
 }
