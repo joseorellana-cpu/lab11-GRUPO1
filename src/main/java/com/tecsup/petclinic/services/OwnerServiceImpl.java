@@ -46,4 +46,18 @@ public class OwnerServiceImpl implements OwnerService {
 				.toList();
 	}
 
+	/**
+	 *
+	 * @param city
+	 * @return
+	 */
+	@Override
+	public List<OwnerDTO> findByCity(String city) {
+
+		return ownerRepository.findByCity(city)
+				.stream()
+				.map(ownerMapper::mapToDto)
+				.toList();
+	}
+
 }

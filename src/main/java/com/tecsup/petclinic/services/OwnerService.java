@@ -22,4 +22,11 @@ public interface OwnerService {
 	 */
 	List<OwnerDTO> findByLastName(String lastName);
 
+	/**
+	 *
+	 * @param city
+	 * @return
+	 */
+	List<OwnerDTO> findByCity(String city);
+
 }

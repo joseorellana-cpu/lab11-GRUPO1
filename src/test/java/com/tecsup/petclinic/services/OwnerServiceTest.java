@@ -69,4 +69,22 @@ class OwnerServiceTest {
         verify(ownerRepository).findByLastName(LAST_NAME);
     }
 
+    @Test
+    void testFindByCity() {
+
+        String CITY = "Madison";
+
+        List<Owner> ownersExpected = List.of(
+                new Owner(1, "George", "Franklin", "110 W. Liberty St.", CITY, "6085551023"),
+                new Owner(6, "Jean", "Coleman", "105 N. Lake St.", CITY, "6085552654"));
+
+        when(ownerRepository.findByCity(CITY)).thenReturn(ownersExpected);
+
+        List<OwnerDTO> owners = ownerService.findByCity(CITY);
+
+        assertEquals(ownersExpected.size(), owners.size());
+        owners.forEach(owner -> assertEquals(CITY, owner.getCity()));
+        verify(ownerRepository).findByCity(CITY);
+    }
+
 }

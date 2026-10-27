@@ -13,4 +13,7 @@ public interface OwnerRepository
 	// Fetch owners by last name
 	List<Owner> findByLastName(String lastName);
 
+	// Fetch owners by city
+	List<Owner> findByCity(String city);
+
 }
