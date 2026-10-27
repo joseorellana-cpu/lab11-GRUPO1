@@ -1,3 +1,4 @@
+package com.tecsup.petclinic.entities;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
