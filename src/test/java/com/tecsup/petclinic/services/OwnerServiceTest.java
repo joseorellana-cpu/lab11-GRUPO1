@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,6 +49,24 @@ class OwnerServiceTest {
         assertEquals(ownerExpected.getLastName(), owner.getLastName());
         assertEquals(ownerExpected.getCity(), owner.getCity());
         verify(ownerRepository).findById(1);
+    }
+
+    @Test
+    void testFindByLastName() {
+
+        String LAST_NAME = "Davis";
+
+        List<Owner> ownersExpected = List.of(
+                new Owner(2, "Betty", LAST_NAME, "638 Cardinal Ave.", "Sun Prairie", "6085551749"),
+                new Owner(10, "Harold", LAST_NAME, "563 Friendly St.", "Windsor", "6085553198"));
+
+        when(ownerRepository.findByLastName(LAST_NAME)).thenReturn(ownersExpected);
+
+        List<OwnerDTO> owners = ownerService.findByLastName(LAST_NAME);
+
+        assertEquals(ownersExpected.size(), owners.size());
+        owners.forEach(owner -> assertEquals(LAST_NAME, owner.getLastName()));
+        verify(ownerRepository).findByLastName(LAST_NAME);
     }
 
 }

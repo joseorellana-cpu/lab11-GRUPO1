@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -28,6 +30,20 @@ public class OwnerServiceImpl implements OwnerService {
 		return ownerRepository.findById(id)
 				.map(ownerMapper::mapToDto)
 				.orElseThrow(() -> new OwnerNotFoundException("Record not found...!"));
+	}
+
+	/**
+	 *
+	 * @param lastName
+	 * @return
+	 */
+	@Override
+	public List<OwnerDTO> findByLastName(String lastName) {
+
+		return ownerRepository.findByLastName(lastName)
+				.stream()
+				.map(ownerMapper::mapToDto)
+				.toList();
 	}
 
 }

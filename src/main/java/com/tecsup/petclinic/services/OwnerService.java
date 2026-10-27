@@ -3,6 +3,8 @@ package com.tecsup.petclinic.services;
 import com.tecsup.petclinic.dtos.OwnerDTO;
 import com.tecsup.petclinic.exceptions.OwnerNotFoundException;
 
+import java.util.List;
+
 public interface OwnerService {
 
 	/**
@@ -12,5 +14,12 @@ public interface OwnerService {
 	 * @throws OwnerNotFoundException
 	 */
 	OwnerDTO findById(Integer id) throws OwnerNotFoundException;
+
+	/**
+	 *
+	 * @param lastName
+	 * @return
+	 */
+	List<OwnerDTO> findByLastName(String lastName);
 
 }
