@@ -1,4 +1,4 @@
-﻿package com.tecsup.petclinic.services;
+package com.tecsup.petclinic.services;
 
 import com.tecsup.petclinic.dtos.OwnerDTO;
 import com.tecsup.petclinic.entities.Owner;
@@ -67,7 +67,7 @@ public class OwnerServiceTest {
     public void testFindByLastName_Empty() {
         // Arrange
         Mockito.when(repository.findByLastName("Inexistente"))
-                .thenReturn(Optional.empty());
+                .thenReturn(List.of());
 
         // Act
         List<OwnerDTO> result = ownerService.findByLastName("Inexistente");

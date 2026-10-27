@@ -1,4 +1,4 @@
-﻿package com.tecsup.petclinic.util;
+package com.tecsup.petclinic.util;
 
 import com.tecsup.petclinic.dtos.PetDTO;
 import com.tecsup.petclinic.entities.Owner;
@@ -82,7 +82,7 @@ public class TObjectCreator {
 		return pets;
 	}
 
-	// === Owner helpers (Integrante B ÔÇö Owner tests) ===
+	// === Owner helpers (Integrante B — Owner tests) ===
 
 	public static Owner getOwner() {
 		return new Owner(1L, "Jaime", "Aguilar", "Av. Principal 123", "Santiago", "999123456");

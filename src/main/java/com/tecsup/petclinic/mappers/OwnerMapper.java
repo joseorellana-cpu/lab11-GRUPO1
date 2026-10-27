@@ -9,5 +9,5 @@ public interface OwnerMapper {
 
     Owner mapToEntity(OwnerDTO dto);
 
-    OwnerDTO mapToDto(Owner entity);
+    OwnerDTO mapToDTO(Owner entity);
 }

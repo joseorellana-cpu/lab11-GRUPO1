@@ -1,4 +1,4 @@
-﻿package com.tecsup.petclinic.repositories;
+package com.tecsup.petclinic.repositories;
 
 import com.tecsup.petclinic.entities.Pet;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-﻿package com.tecsup.petclinic.services;
+package com.tecsup.petclinic.services;
 import com.tecsup.petclinic.dtos.OwnerDTO;
 import com.tecsup.petclinic.entities.Owner;
 import com.tecsup.petclinic.exceptions.OwnerNotFoundException;
@@ -33,9 +33,9 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     public List<OwnerDTO> findByLastName(String lastName) {
-        return ownerRepository.findByLastName(lastName)
-                .map(owner -> List.of(ownerMapper.mapToDTO(owner)))
-                .orElse(List.of());
+        return ownerRepository.findByLastName(lastName).stream()
+                .map(ownerMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
