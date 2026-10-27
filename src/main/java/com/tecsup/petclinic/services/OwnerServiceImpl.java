@@ -39,6 +39,13 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
+    public List<OwnerDTO> findByCity(String city) {
+        return ownerRepository.findByCity(city).stream()
+                .map(ownerMapper::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void delete(Integer id) throws OwnerNotFoundException {
         if (ownerRepository.existsById(id)) {
             ownerRepository.deleteById(id);
