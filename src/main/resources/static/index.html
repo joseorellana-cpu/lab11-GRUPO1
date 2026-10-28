@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PetClinic - Panel de prueba</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --brand: #2563eb;
+    --brand-dark: #1d4ed8;
+    --danger: #dc2626;
+    --ok: #059669;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #fff;
+    padding: 24px 32px;
+  }
+  header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+  header p { margin: 6px 0 0; opacity: .85; font-size: 13px; }
+  header a { color: #dbeafe; margin-right: 16px; font-size: 13px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 60px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+  }
+  .card h2 { margin: 0 0 4px; font-size: 16px; }
+  .card .sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  tbody tr:hover { background: #f9fafb; }
+  .empty { color: var(--muted); font-size: 13px; padding: 12px 6px; }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  form .full { grid-column: 1 / -1; }
+  label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 3px; }
+  input, select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 13px;
+    background: #fff;
+    color: var(--ink);
+  }
+  input:focus, select:focus { outline: 2px solid #bfdbfe; border-color: var(--brand); }
+  button {
+    border: 0;
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--brand);
+    color: #fff;
+  }
+  button:hover { background: var(--brand-dark); }
+  button.ghost { background: #eef2ff; color: var(--brand-dark); }
+  button.ghost:hover { background: #e0e7ff; }
+  button.link { background: none; color: var(--danger); padding: 2px 4px; font-size: 12px; }
+  button.link:hover { text-decoration: underline; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .row input { flex: 1 1 140px; width: auto; }
+  .toolbar { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar .field { flex: 1 1 180px; }
+  .msg {
+    margin-top: 12px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    display: none;
+  }
+  .msg.show { display: block; }
+  .msg.ok { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+  .msg.err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .pill { display: inline-block; background: #eff6ff; color: #1e40af; border-radius: 999px; padding: 1px 8px; font-size: 11px; }
+  .span2 { grid-column: 1 / -1; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px; font-size: 11.5px; overflow: auto; max-height: 220px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PetClinic &mdash; Panel de prueba</h1>
+  <p>Prueba manual de los endpoints REST generados por Spring Data REST</p>
+  <p style="margin-top:10px">
+    <a href="/api" target="_blank">API raíz (/api)</a>
+    <a href="/h2" target="_blank">Consola H2 (/h2)</a>
+    <a href="/api/owners" target="_blank">Owners JSON</a>
+    <a href="/api/pets" target="_blank">Pets JSON</a>
+  </p>
+</header>
+
+<main>
+  <div class="grid">
+
+    <!-- OWNERS -->
+    <section class="card">
+      <h2>Owners <span class="pill" id="owners-count">0</span></h2>
+      <div class="sub">Listar, buscar, crear y eliminar dueños</div>
+
+      <div class="toolbar">
+        <div class="field">
+          <label for="filter-lastname">Buscar por apellido</label>
+          <input id="filter-lastname" placeholder="Ej. Davis">
+        </div>
+        <div class="field">
+          <label for="filter-city">Buscar por ciudad</label>
+          <input id="filter-city" placeholder="Ej. Madison">
+        </div>
+        <button class="ghost" onclick="searchOwners()">Buscar</button>
+        <button class="ghost" onclick="loadOwners()">Todos</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Nombre</th><th>Apellido</th><th>Ciudad</th><th>Teléfono</th><th></th></tr>
+        </thead>
+        <tbody id="owners-body"></tbody>
+      </table>
+      <div id="owners-empty" class="empty" style="display:none">Sin resultados.</div>
+
+      <form id="owner-form" onsubmit="createOwner(event)">
+        <div class="span2"><h3 style="margin:14px 0 0;font-size:13px">Nuevo owner</h3></div>
+        <div><label for="o-first">Nombre</label><input id="o-first" required></div>
+        <div><label for="o-last">Apellido</label><input id="o-last" required></div>
+        <div class="full"><label for="o-address">Dirección</label><input id="o-address"></div>
+        <div><label for="o-city">Ciudad</label><input id="o-city"></div>
+        <div><label for="o-phone">Teléfono</label><input id="o-phone"></div>
+        <div class="span2"><button type="submit">Crear owner</button></div>
+      </form>
+      <div id="owner-msg" class="msg"></div>
+    </section>
+
+    <!-- PETS -->
+    <section class="card">
+      <h2>Pets <span class="pill" id="pets-count">0</span></h2>
+      <div class="sub">Listar, crear y eliminar mascotas</div>
+
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Owner</th><th>Nacimiento</th><th></th></tr>
+        </thead>
+        <tbody id="pets-body"></tbody>
+      </table>
+      <div id="pets-empty" class="empty" style="display:none">Sin resultados.</div>
+
+      <form id="pet-form" onsubmit="createPet(event)">
+        <div class="span2"><h3 style="margin:14px 0 0;font-size:13px">Nueva mascota</h3></div>
+        <div><label for="p-name">Nombre</label><input id="p-name" required></div>
+        <div><label for="p-birth">Nacimiento</label><input id="p-birth" type="date"></div>
+        <div><label for="p-type">Type ID</label><input id="p-type" type="number" min="1" value="1" required></div>
+        <div><label for="p-owner">Owner ID</label><input id="p-owner" type="number" min="1" value="1" required></div>
+        <div class="span2"><button type="submit">Crear mascota</button></div>
+      </form>
+      <div id="pet-msg" class="msg"></div>
+    </section>
+
+  </div>
+
+  <section class="card" style="margin-top:20px">
+    <h2>Última respuesta del servidor</h2>
+    <div class="sub">Útil para verificar códigos y cuerpos HTTP</div>
+    <pre id="log">Sin peticiones todavía.</pre>
+  </section>
+</main>
+
+<script>
+const API = "/api";
+
+function log(label, status, body) {
+  const el = document.getElementById("log");
+  const text = typeof body === "string" ? body : JSON.stringify(body, null, 2);
+  el.textContent = `[${new Date().toLocaleTimeString()}] ${label}\nHTTP ${status}\n\n${text}`;
+}
+
+function showMsg(id, text, ok) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = "msg show " + (ok ? "ok" : "err");
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = "msg"; }, 5000);
+}
+
+async function request(url, options = {}) {
+  const res = await fetch(url, {
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    ...options
+  });
+  const raw = await res.text();
+  let body = raw;
+  try { body = raw ? JSON.parse(raw) : null; } catch (e) { /* texto plano */ }
+  log(`${options.method || "GET"} ${url}`, res.status, body);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return body;
+}
+
+function collection(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (data._embedded) return Object.values(data._embedded)[0] || [];
+  return [];
+}
+
+// Spring Data REST no expone el id como propiedad: se toma del self link.
+function getId(entity) {
+  if (entity.id !== undefined && entity.id !== null) return entity.id;
+  const href = entity._links && entity._links.self && entity._links.self.href;
+  return href ? href.split("/").pop() : "";
+}
+
+async function loadOwners(url = `${API}/owners?size=100`) {
+  try {
+    const data = await request(url);
+    renderOwners(collection(data));
+  } catch (e) {
+    showMsg("owner-msg", "No se pudieron cargar los owners: " + e.message, false);
+  }
+}
+
+function renderOwners(owners) {
+  const body = document.getElementById("owners-body");
+  body.innerHTML = "";
+  document.getElementById("owners-count").textContent = owners.length;
+  document.getElementById("owners-empty").style.display = owners.length ? "none" : "block";
+  owners.forEach(o => {
+    const id = getId(o);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${id}</td>
+      <td>${o.firstName ?? ""}</td>
+      <td>${o.lastName ?? ""}</td>
+      <td>${o.city ?? ""}</td>
+      <td>${o.telephone ?? ""}</td>
+      <td><button class="link" onclick="deleteOwner('${id}')">Eliminar</button></td>`;
+    body.appendChild(tr);
+  });
+}
+
+async function searchOwners() {
+  const lastName = document.getElementById("filter-lastname").value.trim();
+  const city = document.getElementById("filter-city").value.trim();
+  if (lastName) {
+    return loadOwners(`${API}/owners/search/findByLastName?lastName=${encodeURIComponent(lastName)}`);
+  }
+  if (city) {
+    return loadOwners(`${API}/owners/search/findByCity?city=${encodeURIComponent(city)}`);
+  }
+  return loadOwners();
+}
+
+async function createOwner(event) {
+  event.preventDefault();
+  const payload = {
+    firstName: document.getElementById("o-first").value.trim(),
+    lastName: document.getElementById("o-last").value.trim(),
+    address: document.getElementById("o-address").value.trim() || null,
+    city: document.getElementById("o-city").value.trim() || null,
+    telephone: document.getElementById("o-phone").value.trim() || null
+  };
+  try {
+    await request(`${API}/owners`, { method: "POST", body: JSON.stringify(payload) });
+    showMsg("owner-msg", "Owner creado correctamente.", true);
+    event.target.reset();
+    loadOwners();
+  } catch (e) {
+    showMsg("owner-msg", "Error al crear owner: " + e.message, false);
+  }
+}
+
+async function deleteOwner(id) {
+  if (!confirm(`¿Eliminar el owner ${id}?`)) return;
+  try {
+    await request(`${API}/owners/${id}`, { method: "DELETE" });
+    showMsg("owner-msg", `Owner ${id} eliminado.`, true);
+    loadOwners();
+  } catch (e) {
+    showMsg("owner-msg", "Error al eliminar owner: " + e.message, false);
+  }
+}
+
+async function loadPets() {
+  try {
+    const data = await request(`${API}/pets?size=100`);
+    renderPets(collection(data));
+  } catch (e) {
+    showMsg("pet-msg", "No se pudieron cargar las mascotas: " + e.message, false);
+  }
+}
+
+function renderPets(pets) {
+  const body = document.getElementById("pets-body");
+  body.innerHTML = "";
+  document.getElementById("pets-count").textContent = pets.length;
+  document.getElementById("pets-empty").style.display = pets.length ? "none" : "block";
+  pets.forEach(p => {
+    const id = getId(p);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${id}</td>
+      <td>${p.name ?? ""}</td>
+      <td>${p.typeId ?? ""}</td>
+      <td>${p.ownerId ?? ""}</td>
+      <td>${p.birthDate ?? ""}</td>
+      <td><button class="link" onclick="deletePet('${id}')">Eliminar</button></td>`;
+    body.appendChild(tr);
+  });
+}
+
+async function createPet(event) {
+  event.preventDefault();
+  const payload = {
+    name: document.getElementById("p-name").value.trim(),
+    birthDate: document.getElementById("p-birth").value || null,
+    typeId: Number(document.getElementById("p-type").value),
+    ownerId: Number(document.getElementById("p-owner").value)
+  };
+  try {
+    await request(`${API}/pets`, { method: "POST", body: JSON.stringify(payload) });
+    showMsg("pet-msg", "Mascota creada correctamente.", true);
+    event.target.reset();
+    loadPets();
+  } catch (e) {
+    showMsg("pet-msg", "Error al crear mascota: " + e.message, false);
+  }
+}
+
+async function deletePet(id) {
+  if (!confirm(`¿Eliminar la mascota ${id}?`)) return;
+  try {
+    await request(`${API}/pets/${id}`, { method: "DELETE" });
+    showMsg("pet-msg", `Mascota ${id} eliminada.`, true);
+    loadPets();
+  } catch (e) {
+    showMsg("pet-msg", "Error al eliminar mascota: " + e.message, false);
+  }
+}
+
+loadOwners();
+loadPets();
+</script>
+</body>
+</html>
