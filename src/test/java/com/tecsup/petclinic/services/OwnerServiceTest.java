@@ -7,6 +7,7 @@ import com.tecsup.petclinic.repositories.OwnerRepository;
 import com.tecsup.petclinic.util.TObjectCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +29,102 @@ public class OwnerServiceTest {
     private OwnerRepository repository;
 
     // =========================================================================
-    // Integrante A ÔÇö Casos de error
+    // Integrante A — CRUD básico
+    // =========================================================================
+
+    /**
+     * Verifica que create guarde el Owner y devuelva el DTO con el ID generado.
+     */
+    @Test
+    public void testCreateOwner() {
+        // Arrange
+        String FIRST_NAME = "Lucia";
+        String LAST_NAME = "Ramirez";
+        String ADDRESS = "Av. Arequipa 123";
+        String CITY = "Lima";
+        String TELEPHONE = "987654321";
+
+        OwnerDTO newOwnerDTO = new OwnerDTO(null, FIRST_NAME, LAST_NAME, ADDRESS, CITY, TELEPHONE);
+        Owner ownerSaved = new Owner(10L, FIRST_NAME, LAST_NAME, ADDRESS, CITY, TELEPHONE);
+
+        Mockito.when(repository.save(Mockito.any(Owner.class)))
+                .thenReturn(ownerSaved);
+
+        // Act
+        OwnerDTO ownerCreated = ownerService.create(newOwnerDTO);
+
+        // Assert
+        assertNotNull(ownerCreated);
+        assertNotNull(ownerCreated.getId());
+        assertEquals(10, ownerCreated.getId().intValue());
+        assertEquals(FIRST_NAME, ownerCreated.getFirstName());
+        assertEquals(LAST_NAME, ownerCreated.getLastName());
+        assertEquals(ADDRESS, ownerCreated.getAddress());
+        assertEquals(CITY, ownerCreated.getCity());
+        assertEquals(TELEPHONE, ownerCreated.getTelephone());
+
+        // El mapper debe haber convertido el DTO a entidad antes de guardar
+        ArgumentCaptor<Owner> captor = ArgumentCaptor.forClass(Owner.class);
+        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
+        assertEquals(FIRST_NAME, captor.getValue().getFirstName());
+        assertEquals(TELEPHONE, captor.getValue().getTelephone());
+    }
+
+    /**
+     * Verifica que update guarde los datos modificados y los devuelva en el DTO.
+     */
+    @Test
+    public void testUpdateOwner() {
+        // Arrange
+        Integer OWNER_ID = 3;
+        String UP_FIRST_NAME = "Carlos";
+        String UP_CITY = "Trujillo";
+
+        OwnerDTO ownerToUpdate = new OwnerDTO(OWNER_ID, UP_FIRST_NAME, "Mendoza",
+                "Junin 789", UP_CITY, "999555666");
+        Owner ownerUpdated = new Owner(3L, UP_FIRST_NAME, "Mendoza",
+                "Junin 789", UP_CITY, "999555666");
+
+        Mockito.when(repository.save(Mockito.any(Owner.class)))
+                .thenReturn(ownerUpdated);
+
+        // Act
+        OwnerDTO ownerResult = ownerService.update(ownerToUpdate);
+
+        // Assert
+        assertNotNull(ownerResult);
+        assertEquals(OWNER_ID, ownerResult.getId());
+        assertEquals(UP_FIRST_NAME, ownerResult.getFirstName());
+        assertEquals("Mendoza", ownerResult.getLastName());
+        assertEquals(UP_CITY, ownerResult.getCity());
+
+        // Se debe persistir la entidad con los datos actualizados
+        ArgumentCaptor<Owner> captor = ArgumentCaptor.forClass(Owner.class);
+        Mockito.verify(repository, Mockito.times(1)).save(captor.capture());
+        assertEquals(UP_FIRST_NAME, captor.getValue().getFirstName());
+        assertEquals(UP_CITY, captor.getValue().getCity());
+    }
+
+    /**
+     * Verifica que delete elimine el Owner cuando el ID existe.
+     */
+    @Test
+    public void testDeleteOwner() {
+        // Arrange
+        Integer OWNER_ID = 5;
+
+        Mockito.when(repository.existsById(OWNER_ID)).thenReturn(true);
+        Mockito.doNothing().when(repository).deleteById(OWNER_ID);
+
+        // Act & Assert
+        assertDoesNotThrow(() -> ownerService.delete(OWNER_ID));
+
+        Mockito.verify(repository, Mockito.times(1)).existsById(OWNER_ID);
+        Mockito.verify(repository, Mockito.times(1)).deleteById(OWNER_ID);
+    }
+
+    // =========================================================================
+    // Integrante C — Casos de error
     // =========================================================================
 
     /**
@@ -61,7 +157,7 @@ public class OwnerServiceTest {
     }
 
     /**
-     * Verifica que findByLastName retorne lista vac├¡a cuando no hay coincidencias.
+     * Verifica que findByLastName retorne lista vacía cuando no hay coincidencias.
      */
     @Test
     public void testFindByLastName_Empty() {
@@ -78,7 +174,7 @@ public class OwnerServiceTest {
     }
 
     // =========================================================================
-    // Integrante B (Johan) ÔÇö B├║squedas y consultas
+    // Integrante B (Johan) — Búsquedas y consultas
     // =========================================================================
 
     /**
